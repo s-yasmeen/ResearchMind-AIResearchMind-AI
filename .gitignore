@@ -216,3 +216,25 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# ------------------------
+# ResearchMind
+# ------------------------
+
+.env1
+
+papers/
+
+vector_db/
+
+memory/chroma_db/
+
+*.pdf
+
+*.db
+
+# ResearchMind
+papers/
+vector_db/
+memory/chroma_db/
+*.pdf
+.env1
