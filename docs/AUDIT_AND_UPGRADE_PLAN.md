@@ -190,3 +190,17 @@ A capability is complete only when it has:
 This is a static first-pass audit based on the public `main` tree and selected source files. No code has been executed, no credentials or private deployment settings have been inspected, and no benchmark performance is claimed.
 
 Next: run baseline tests in a controlled environment, inspect all remaining agent/engine modules, establish a locked dependency environment, and implement P0 on this branch before adding new research capabilities.
+
+
+## 11. Phase 0 implementation update (2026-11-06)
+
+Changes committed on `researchmind/phase-0-audit` after the initial inspection:
+
+- Hardened `agents/supervisor.py`: validates non-empty requests, normalizes harmless case/whitespace variations in the route label, and raises an explicit error for unsupported router output.
+- Tightened the routing prompt with specialist definitions and an instruction to treat the user request as data.
+- Added `langchain-openai` and `sentence-transformers` to `requirements.txt`, because the inspected runtime modules import these packages but the previous dependency list did not declare them.
+- Added `tests/test_supervisor.py` with unit coverage for Literature, Methodology, Writing, malformed routes and empty input.
+
+**Still open:** `run_researchmind.py` imports an autonomous engine module that is absent from the inspected branch tree (`engine/autonomous_project_engine.py` and `core/autonomous_project_engine.py` were both not found). This is a confirmed static integration blocker; implementing a replacement engine requires reviewing the runner's full task contract and should not be papered over with a stub.
+
+**Validation status:** the GitHub commits succeeded, but tests have not been executed in a local project environment. Do not interpret the added tests as a passing test run. The autonomous runner remains unverified.
