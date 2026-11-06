@@ -204,3 +204,46 @@ Changes committed on `researchmind/phase-0-audit` after the initial inspection:
 **Still open:** `run_researchmind.py` imports an autonomous engine module that is absent from the inspected branch tree (`engine/autonomous_project_engine.py` and `core/autonomous_project_engine.py` were both not found). This is a confirmed static integration blocker; implementing a replacement engine requires reviewing the runner's full task contract and should not be papered over with a stub.
 
 **Validation status:** the GitHub commits succeeded, but tests have not been executed in a local project environment. Do not interpret the added tests as a passing test run. The autonomous runner remains unverified.
+
+
+## 12. Autonomous engine recovery (2026-11-06)
+
+Added `engine/autonomous_project_engine.py` and the `engine` package to satisfy
+the import contract used by `run_researchmind.py`. The engine accepts
+`run(query, max_tasks, resume)`, uses the existing `TaskMemory` checkpoint
+API, writes task state before and after execution, and returns the
+`executed_tasks` structure consumed by the runner.
+
+### Capability boundary
+
+The repository contains three callable specialist agents. The engine maps
+these to the first three task IDs:
+
+- `P1-T1`: evidence-grounded literature review (uses the existing local
+  vector retriever; it does not perform a live scholarly-web search).
+- `P1-T2`: initial methodology proposal.
+- `P1-T3`: scholarly writing draft.
+
+The runner declares 26 IDs but supplies no task titles, dependency graph,
+acceptance criteria, or handler mapping for the remaining 23. Those records
+are explicitly returned as `not_implemented`; they are not presented as
+completed research. The three existing agents also have the limitations of
+their current implementations and should not be mistaken for validated
+doctoral-grade research automation.
+
+### Resume and failure behavior
+
+- Completed tasks are preserved when resuming.
+- `max_tasks` limits newly attempted implemented tasks.
+- Empty agent output is treated as an error.
+- Retryable/quota-like failures are returned to `pending`; other exceptions
+  are recorded as `failed`.
+- Checkpoints are saved before and after each task.
+
+### Validation status
+
+Added `tests/test_autonomous_project_engine.py` for the runner contract,
+task limit behavior, resume preservation, and empty-query validation.
+These tests have been authored but **have not been executed** in this
+GitHub-only workflow. No runtime, integration, provider, or end-to-end
+research validation is claimed.
