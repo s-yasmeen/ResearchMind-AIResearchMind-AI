@@ -232,9 +232,15 @@ memory/chroma_db/
 
 *.db
 
-# ResearchMind
-papers/
-vector_db/
-memory/chroma_db/
-*.pdf
-.env1
+# ResearchMind runtime state and local research data (never commit by default)
+.env.*
+!.env.example
+/researchmind_memory/
+/outputs/
+/papers/
+/vector_db/
+/memory/chroma_db/
+/artifacts/
+/logs/
+*.sqlite3
+*.sqlite3-*
