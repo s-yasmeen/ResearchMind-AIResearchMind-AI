@@ -247,3 +247,16 @@ task limit behavior, resume preservation, and empty-query validation.
 These tests have been authored but **have not been executed** in this
 GitHub-only workflow. No runtime, integration, provider, or end-to-end
 research validation is claimed.
+
+## 13. Phase 0 CI baseline update (2026-11-15)
+
+The recovery branch now includes a dependency-light GitHub Actions workflow that runs the repository's unit tests on pushes to this branch and on pull requests targeting `main`.
+
+Additional changes:
+- Extended `.gitignore` to exclude local credentials, checkpoint state, generated reports, research datasets and local database files by default.
+- Deferred the ChromaDB import in `LiteratureAgent` until retrieval is actually invoked. This allows agent routing and orchestration unit tests to run without installing the vector database backend.
+- Added `tests/test_task_memory.py` to cover checkpoint round-tripping, completed-task immutability, quota-safe resume, query isolation and duplicate task normalization.
+
+**Validation:** GitHub Actions run `43745248606` completed successfully on commit `87eee5de8deccbfd80af894ee9beb705a91b73ff`. All 14 tests passed. This validates the isolated unit-test suite only; it does not validate live LLM calls, ChromaDB retrieval, paper ingestion, experiments, or the complete 26-task workflow.
+
+**Remaining implementation boundary:** The autonomous engine still implements only three specialist tasks. The other 23 task IDs remain explicitly `not_implemented`; they must not be reported as completed until their specifications, handlers, dependencies and acceptance tests are implemented.
