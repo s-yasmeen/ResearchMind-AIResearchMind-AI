@@ -1,5 +1,4 @@
 from core.llm_factory import LLMFactory
-from core.retriever import Retriever
 
 
 class LiteratureAgent:
@@ -8,6 +7,10 @@ class LiteratureAgent:
         self.llm = LLMFactory.get_llm()
 
     def run(self, query):
+        # Load the vector backend only when retrieval is requested.
+        # This keeps agent registration and routing tests independent
+        # of the optional ChromaDB runtime dependency.
+        from core.retriever import Retriever
 
         print("\nSearching knowledge base...")
 
