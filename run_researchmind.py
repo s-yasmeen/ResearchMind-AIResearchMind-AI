@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from engine.task_registry import TASK_IDS
+
 
 # ============================================================
 # PATHS
@@ -97,13 +99,7 @@ REPORT_FILE = (
 # EXPECTED TASKS
 # ============================================================
 
-EXPECTED_TASK_IDS = (
-    [f"P1-T{i}" for i in range(1, 6)]
-    + [f"P2-T{i}" for i in range(1, 6)]
-    + [f"P3-T{i}" for i in range(1, 6)]
-    + [f"P4-T{i}" for i in range(1, 6)]
-    + [f"P5-T{i}" for i in range(1, 7)]
-)
+EXPECTED_TASK_IDS = TASK_IDS
 
 TOTAL_TASKS = len(
     EXPECTED_TASK_IDS
@@ -549,19 +545,32 @@ def task_counts(
         == "failed"
     )
 
-    pending = (
-        TOTAL_TASKS
-        - completed
-        - failed
+    pending = sum(
+        1
+        for item in tasks
+        if item.get("status") in {
+            "pending",
+            "running",
+            "interrupted",
+            "rate_limited",
+            "quota_blocked",
+            "quota_exhausted",
+        }
     )
 
     return (
         completed,
         failed,
-        max(
-            0,
-            pending,
-        ),
+        pending,
+    )
+
+
+def task_not_implemented_count(
+    tasks: list[dict[str, Any]],
+) -> int:
+    return sum(
+        1 for item in tasks
+        if item.get("status") == "not_implemented"
     )
 
 
@@ -804,6 +813,7 @@ def write_summary(
         "completed": completed,
         "failed": failed,
         "pending": pending,
+        "not_implemented": task_not_implemented_count(tasks),
         "quota_blocked": quota_blocked,
         "quota_error": quota_error,
         "quota_reset_time": reset_time,
@@ -854,6 +864,7 @@ def write_report(
         ),
         f"- Failed: {failed}",
         f"- Pending: {pending}",
+        f"- Not implemented: {task_not_implemented_count(tasks)}",
         (
             f"- Quota blocked: "
             f"{quota_blocked}"
