@@ -272,3 +272,11 @@ Implemented on `researchmind/phase-0-audit`:
 - Added tests for the 26-task registry, dependency satisfaction, and downstream blocking after a prerequisite failure.
 
 This is orchestration foundation work, not completion of all research capabilities. Only P1-T1 through P1-T3 have agent handlers at this point. The other 23 tasks remain explicitly `not_implemented`; the registry does not fabricate agents, datasets, experiments, evidence, or manuscript results. The new GitHub Actions run must pass before this increment is considered validated.
+
+
+### Runner consistency and reporting fix
+
+- `run_researchmind.py` now consumes the canonical 26-task registry instead of maintaining a second task-ID list.
+- Pending counts now include only genuinely pending/running/retryable tasks. `not_implemented` work is reported separately rather than being misleadingly counted as pending.
+- Added regression tests for registry consistency and status accounting.
+- Validation is pending the GitHub Actions result for the latest commit.
