@@ -280,3 +280,9 @@ This is orchestration foundation work, not completion of all research capabiliti
 - Pending counts now include only genuinely pending/running/retryable tasks. `not_implemented` work is reported separately rather than being misleadingly counted as pending.
 - Added regression tests for registry consistency and status accounting.
 - Validation is pending the GitHub Actions result for the latest commit.
+
+
+### Evidence-completion safeguard
+
+- The literature agent now raises an explicit error when retrieval returns no papers. An empty vector-store result can no longer be counted as a completed literature review merely because an explanatory message is non-empty.
+- Added a regression test for the empty-evidence case.
