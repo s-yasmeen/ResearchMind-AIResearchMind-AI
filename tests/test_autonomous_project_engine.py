@@ -62,6 +62,21 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(result["executed_tasks"][0]["output"], "saved output")
         self.assertEqual(calls, ["methodology"])
 
+    def test_failed_prerequisite_blocks_downstream_agent(self):
+        memory = FakeMemory()
+        engine = AutonomousProjectEngine(memory=memory)
+
+        def fail_literature(agent, query):
+            raise RuntimeError("literature provider unavailable")
+
+        engine._agent_output = fail_literature
+        result = engine.run("test topic", resume=False)
+
+        self.assertEqual(result["executed_tasks"][0]["status"], "failed")
+        self.assertEqual(result["executed_tasks"][1]["status"], "pending")
+        self.assertIn("prerequisite", result["executed_tasks"][1]["reason"])
+        self.assertEqual(result["executed_tasks"][2]["status"], "pending")
+
     def test_rejects_empty_query(self):
         engine = AutonomousProjectEngine(memory=FakeMemory())
         with self.assertRaises(ValueError):
