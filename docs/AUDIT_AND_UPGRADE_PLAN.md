@@ -260,3 +260,15 @@ Additional changes:
 **Validation:** GitHub Actions run `43745248606` completed successfully on commit `87eee5de8deccbfd80af894ee9beb705a91b73ff`. All 14 tests passed. This validates the isolated unit-test suite only; it does not validate live LLM calls, ChromaDB retrieval, paper ingestion, experiments, or the complete 26-task workflow.
 
 **Remaining implementation boundary:** The autonomous engine still implements only three specialist tasks. The other 23 task IDs remain explicitly `not_implemented`; they must not be reported as completed until their specifications, handlers, dependencies and acceptance tests are implemented.
+
+
+## 12. Workflow registry and dependency-gating update (2026-11-16)
+
+Implemented on `researchmind/phase-0-audit`:
+
+- Added `engine/task_registry.py` with all 26 task IDs, explicit research deliverable titles, phase metadata, and prerequisite relationships.
+- Added registry validation for duplicate IDs, unknown/self dependencies, and invalid dependency ordering.
+- Updated `AutonomousProjectEngine` to use the canonical registry and to prevent an implemented task from running before its prerequisites complete.
+- Added tests for the 26-task registry, dependency satisfaction, and downstream blocking after a prerequisite failure.
+
+This is orchestration foundation work, not completion of all research capabilities. Only P1-T1 through P1-T3 have agent handlers at this point. The other 23 tasks remain explicitly `not_implemented`; the registry does not fabricate agents, datasets, experiments, evidence, or manuscript results. The new GitHub Actions run must pass before this increment is considered validated.
