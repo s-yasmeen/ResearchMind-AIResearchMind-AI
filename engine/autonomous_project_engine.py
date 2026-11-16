@@ -10,15 +10,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 from core.task_memory import TaskMemory
+from engine.task_registry import TASK_IDS, TASKS_BY_ID, dependencies_satisfied
 
 
-EXPECTED_TASK_IDS = (
-    [f"P1-T{i}" for i in range(1, 6)]
-    + [f"P2-T{i}" for i in range(1, 6)]
-    + [f"P3-T{i}" for i in range(1, 6)]
-    + [f"P4-T{i}" for i in range(1, 6)]
-    + [f"P5-T{i}" for i in range(1, 7)]
-)
+EXPECTED_TASK_IDS = list(TASK_IDS)
 
 
 def _now() -> str:
@@ -74,9 +69,8 @@ class AutonomousProjectEngine:
 
         records: list[dict[str, Any]] = []
         for task_id in EXPECTED_TASK_IDS:
-            title, agent = self.IMPLEMENTED_TASKS.get(
-                task_id, (f"Legacy workflow task {task_id}", None)
-            )
+            title = TASKS_BY_ID[task_id].title
+            agent = self.IMPLEMENTED_TASKS.get(task_id, (title, None))[1]
             prior = existing.get(task_id)
             if prior and prior.get("status") == "completed":
                 records.append(prior)
@@ -96,11 +90,19 @@ class AutonomousProjectEngine:
         attempted = 0
         executed: list[dict[str, Any]] = []
         for index, task_id in enumerate(EXPECTED_TASK_IDS):
-            title, agent = self.IMPLEMENTED_TASKS.get(
-                task_id, (f"Legacy workflow task {task_id}", None)
-            )
+            title = TASKS_BY_ID[task_id].title
+            agent = self.IMPLEMENTED_TASKS.get(task_id, (title, None))[1]
             record = records[index]
             if record.get("status") == "completed" or agent is None:
+                continue
+            completed_ids = {
+                item.get("task_id") for item in records
+                if item.get("status") == "completed"
+            }
+            if not dependencies_satisfied(task_id, completed_ids):
+                record["status"] = "pending"
+                record["reason"] = "Blocked until prerequisite tasks are completed."
+                record["dependencies"] = list(TASKS_BY_ID[task_id].dependencies)
                 continue
             if max_tasks is not None and attempted >= max_tasks:
                 break
