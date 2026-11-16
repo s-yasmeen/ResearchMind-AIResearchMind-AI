@@ -17,9 +17,9 @@ class LiteratureAgent:
         docs = Retriever.retrieve(query, k=8)
 
         if not docs:
-            return (
-                "No relevant papers were found in the vector database.\n"
-                "Run the paper indexer first."
+            raise RuntimeError(
+                "No relevant papers were found in the vector database. "
+                "Index source papers before marking the literature review complete."
             )
 
         context = "\n\n".join(docs)
